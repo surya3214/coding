@@ -1,4 +1,4 @@
-//
+// AC
 #include <iostream>
 #include <cstdio>
 #define MAX_K 25
