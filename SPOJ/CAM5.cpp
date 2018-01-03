@@ -1,4 +1,4 @@
-//
+// WA
 #include <iostream>
 #include <cstdio>
 #define N_MAX 100010
@@ -6,30 +6,31 @@ using namespace std;
 int n, e, cnt;
 int parent[N_MAX];
 int ranks[N_MAX];
-int find_parent(int u) {
-  if (parent[u] == -1)
+bool visited[N_MAX];
+int find_parent(int u, int val) {
+  if (parent[u] == -1) {
+    if (u != val)
+      parent[val] = u;
     return u;
-  else return parent[u];
+  } else return parent[u];
 }
 void unionize(int u, int v) {
-  int p_u = find_parent(u);
-  int p_v = find_parent(v);
+  int p_u = find_parent(u, u);
+  int p_v = find_parent(v, v);
   if (p_u == p_v)
     return;
   else if (ranks[p_u] >= ranks[p_v]) {
-    parent[v] = p_u;
-    parent[p_v] = p_u;
+    parent[v] = parent[p_v] = p_u;
     ranks[p_u] += ranks[p_v];
   } else {
-    parent[p_u] = p_v;
-    parent[u] = p_v;
+    parent[u] = parent[p_u] = p_v;
     ranks[p_v] += ranks[p_u];
   }
 }
 void reset() {
   cnt = 0;
-  for (int i = 0; i < n; i++)
-    parent[i] = -1, ranks[i] = 1;
+  for (int i = 0; i <= n; i++)
+    parent[i] = -1, ranks[i] = 1, visited[i] = false;
 }
 void program() {
   int t;
@@ -43,9 +44,13 @@ void program() {
       scanf("%d %d", &u, &v);
       unionize(u, v);
     }
+    int parent;
     for (int i = 0; i < n; i++) {
-      if (parent[i] == -1)
+      parent = find_parent(i, i);
+      if (!visited[parent]) {
+        visited[parent] = true;
         cnt++;
+      }
     }
     printf("%d\n", cnt);
   }

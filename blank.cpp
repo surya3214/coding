@@ -1,9 +1,7 @@
 //
-#include <iostream>
-#include <cstdio>
+#include <bits/stdc++.h>
 using namespace std;
 void program() {
-  
 }
 int main() {
   program();
