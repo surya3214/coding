@@ -1,4 +1,4 @@
-// NA
+// AC
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
@@ -27,6 +27,7 @@ int findPosition(int x) {
     else r = mid - 1;
   }
 }
+void updateAns(ll diff, int i) { if (ans.diff == -1 || diff < ans.diff) ans.diff = diff, ans.idx = i; }
 void program() {
   int tcase;
   ll diff;
@@ -44,8 +45,8 @@ void program() {
       prefix_sum[i] = hotels[i] + prefix_sum[i - 1];
     for (int i = 1; i <= n; ++i) {
       idx = findPosition(input[i]);
-      diff = (prefix_sum[n] - prefix_sum[idx]) - (hotels[idx] * (n - idx)) + (hotels[idx] * (idx - 1)) - prefix_sum[idx - 1];
-      if (ans.diff == -1 || diff < ans.diff) ans.diff = diff, ans.idx = i;
+      diff = (prefix_sum[n] - prefix_sum[idx]) - ((ll) hotels[idx] * (n - idx)) + ((ll) hotels[idx] * (idx - 1)) - prefix_sum[idx - 1];
+      updateAns(diff, i);
     }
     printf("Case %d: %d\n", t, ans.idx);
   }

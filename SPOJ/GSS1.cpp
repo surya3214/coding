@@ -1,8 +1,8 @@
-// AC
+// AC - SQRT decomposition
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
-#pragma GCC optimize "O3"
+#pragma GCC optimize "O4"
 #define N_MAX 50000
 #define BLOCKS_MAX 225
 #define BLOCKS_SIZE 225
