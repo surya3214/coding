@@ -1,4 +1,4 @@
-// AC - Mo's Algorithm
+//
 #include <bits/stdc++.h>
 #define N_MAX 30010
 #define Q_MAX 200010
@@ -60,7 +60,7 @@ void solve() {
 }
 void program() {
   scanf("%d", &n);
-  block_size = ceil(sqrt(n));
+  block_size = sqrt(n);
   for (int i = 1; i <= n; i++)
     scanf("%d", &numbers[i]);
   scanf("%d", &q);
