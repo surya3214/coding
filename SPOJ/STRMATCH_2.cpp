@@ -1,4 +1,4 @@
-// AC Aho-Corisack String matching Algorithm, Automaton
+// AC Aho-Corasick String matching Algorithm, Automaton
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
