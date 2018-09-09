@@ -1,4 +1,4 @@
-// NA
+// AC Binary Search
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
@@ -9,14 +9,11 @@ using namespace std;
 typedef long long int ll;
 typedef unsigned long long int ull;
 int n;
-struct {
-  bool set;
-  int val;
-} ans;
 char str[BUFF(N_MAX)];
 int max_freq;
 int frequency[BUFF(N_MAX)][BUFF(TOTAL_CHARS)];
 int t_frequency[BUFF(TOTAL_CHARS)];
+int w_frequency[BUFF(TOTAL_CHARS)];
 int getIndexFromChar(char x) {
   switch(x) {
     case 'A': return 1;
@@ -26,55 +23,53 @@ int getIndexFromChar(char x) {
   }
   return 0;
 }
-void updateAns(int x) {
-  if (ans.set)
-    ans.val = min(ans.val, x);
-  else {
-    ans.val = x;
-    ans.set = true;
-  }
-}
-bool isValidOutOf(int l, int r) {
-  for (int x = 1; x <= 4; ++x) {
-    t_frequency[x] = (l >= 0 ? frequency[l][x] : 0) + frequency[n - 1][x] - (r - 1 >= 0 ? frequency[r - 1][x] : 0);
-    if (t_frequency[x] > max_freq)
+bool isTFreqValid() {
+  for (int k = 1; k <= 4; ++k)
+    if (t_frequency[k] > max_freq)
       return false;
-  }
   return true;
 }
+bool isPossible(int size) {
+  for (int k = 1; k <= 4; ++k)
+    w_frequency[k] = 0;
+  int j = -1, x;
+  for (int i = 0; str[i + size - 1]; ++i) {
+    while (j + 1 <= i + size - 1) {
+      ++j;
+      x = getIndexFromChar(str[j]);
+      ++w_frequency[x];
+    }
+    for (int k = 1; k <= 4; ++k)
+      t_frequency[k] = frequency[n - 1][k] - w_frequency[k];
+    if (isTFreqValid())
+      return true;
+    x = getIndexFromChar(str[i]);
+    --w_frequency[x];
+  }
+  return false;
+}
+int getMid(int l, int r) { return l + (r - l) / 2; }
 int calculate() {
   int x;
-  int ans;
-  bool is_valid;
   for (int i = 0; str[i]; ++i) {
-    for (x = 1; x <= 4; ++x)
-      frequency[i][x] = (i - 1) >= 0 ? frequency[i - 1][x] : 0;
+    for (int k = 1; k <= 4; ++k)
+      frequency[i][k] = (i - 1) >= 0 ? frequency[i - 1][k] : 0;
     x = getIndexFromChar(str[i]);
     ++frequency[i][x];
-    is_valid = true;
-    for (x = 1; x <= 4; ++x) {
-      if (frequency[i][x] > max_freq) {
-        is_valid = false;
-        break;
-      }
-    }
-    if (is_valid) ans = n - i - 1;
   }
-  is_valid = true;
-  for (int i = n - 1; i >= 1 && is_valid; --i) {
-    for (x = 1; x <= 4; ++x) {
-      if (frequency[n - 1][x] - frequency[i - 1][x] > max_freq) {
-        is_valid = false;
-        break;
-      }
-    }
-    ans = min(ans, i);
+  for (int k = 1; k <= 4; ++k)
+    t_frequency[k] = frequency[n - 1][k];
+  if (isTFreqValid())
+    return 0;
+  int l, r, mid;
+  l = 1, r = n;
+  while (l <= r) {
+    mid = getMid(l, r);
+    if (isPossible(mid))
+      r = mid - 1;
+    else l = mid + 1;
   }
-  for (int i = 0; str[i]; ++i)
-    for (int j = i; str[j] && j - i + 1 <= ans; ++j)
-      if (isValidOutOf(i - 1, j + 1))
-        ans = j - i + 1;
-  return ans;
+  return r + 1;
 }
 void program() {
   scanf("%d", &n);
