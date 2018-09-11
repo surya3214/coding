@@ -51,11 +51,10 @@ bool isPossible(int x, int y) {
   return false;
 }
 void bfs() {
-  addToQueue(cur, 0, 0, 0);
   int c_x, c_y;
   int next_x, next_y;
   bool next_q;
-  while (!isEmpty(cur)) {
+  for (addToQueue(cur, 0, 0, 0); !isEmpty(cur); cur = !cur) {
     while (!isEmpty(cur)) {
       pop(cur, c_x, c_y);
       for (int i = 1; i <= 4; ++i) {
@@ -67,7 +66,6 @@ void bfs() {
         }
       }
     }
-    cur = !cur;
   }
 }
 void program() {
