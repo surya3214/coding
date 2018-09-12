@@ -64,15 +64,15 @@ void reverseNode(pnode t) {
   t->r = tmp;
   if (t->l) t->l->lazy = !t->l->lazy;
   if (t->r) t->r->lazy = !t->r->lazy;
+  t->lazy = !t->lazy;
 }
 void propagateLazy(pnode &t) {
-  if (t && t->lazy) {
+  if (t && t->lazy)
     reverseNode(t);
-    t->lazy = false;
-  }
 }
 void Merge(pnode l, pnode r, pnode &t) {
-  propagateLazy(t);
+  propagateLazy(l);
+  propagateLazy(r);
   if (!l) t = r;
   else if (!r) t = l;
   else if (l->priority > r->priority)
@@ -132,7 +132,7 @@ void reverse(int l, int r) {
   Split(root, l1, r1, l - 1);
   pnode l2, r2;
   Split(r1, l2, r2, r - l + 1);
-  reverseNode(l2);
+  l2->lazy = !l2->lazy;
   Merge(l2, r2, r1);
   Merge(l1, r1, root);
 }
