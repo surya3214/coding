@@ -39,7 +39,7 @@ struct {
 void moveCursor(ll pos) {
   int actual_word_id = meta_words[cursor.word_id].made_of[cursor.m_word_id];
   ll next = words[actual_word_id].str.size();
-  while (cursor.m_word_id < meta_words[cursor.word_id].made_of.size() && cursor.seen_so_far + next <= pos) {
+  while (cursor.m_word_id < meta_words[cursor.word_id].made_of.size() && cursor.seen_so_far + next < pos) {
     cursor.seen_so_far += next;
     actual_word_id = meta_words[cursor.word_id].made_of[++cursor.m_word_id];
     next = words[actual_word_id].str.size();
