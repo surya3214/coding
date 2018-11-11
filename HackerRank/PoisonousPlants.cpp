@@ -17,7 +17,11 @@ void reduce(int l, int r) {
   int times = 0, x;
   while (plants_buffer[0] != 1) {
     x = plants_buffer[0];
+<<<<<<< HEAD
     plants_buffer[0] = 1; 
+=======
+    plants_buffer[0] = 1;
+>>>>>>> 77196dfd9dd16eb57b0714f23cf5531a359183d0
     for (int i = 2; i <= x; ++i) {
       if (plants_buffer[i] <= plants_buffer[i - 1])
         plants_buffer[++plants_buffer[0]] = plants_buffer[i];
