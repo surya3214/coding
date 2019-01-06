@@ -3,7 +3,7 @@
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
 #define N_MAX (int) (3 * 1e5)
-#define BLOCKS_MAX 1000 // 550
+#define BLOCKS_MAX 1300 // 550
 #define BLOCKS_SIZE 250 // 550
 #pragma GCC optimize "O3"
 using namespace std;
@@ -142,7 +142,6 @@ ll getMaximumPowerInRange(int l, int r) {
   }
   return power;
 }
-/*
 void processQueries() {
   ll ret = getMaximumPowerInRange(1, n);
   ll x;
@@ -156,7 +155,7 @@ void processQueries() {
     x = getMaximumPowerInRange(queries[i].l, queries[i].r);
     if (x >= queries[i].x) {
       ans[queries[i].index] = s[s_ptr].height;
-      if (!prev)
+      if (t == front)
         front = front->next;
       else prev->next = t->next;
     }
@@ -164,7 +163,7 @@ void processQueries() {
     t = t->next;
   }
 }
-*/
+/*
 void processQueries() {
   ll ret = getMaximumPowerInRange(1, n);
   ll x;
@@ -180,6 +179,7 @@ void processQueries() {
     }
   }
 }
+*/
 void solve() {
   while (s_ptr < n) {
     moveSPtr();

@@ -1,3 +1,5 @@
 .vscode
 **/a.out
 input.txt
+output.txt
+myoutput.txt
