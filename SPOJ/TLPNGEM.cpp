@@ -31,6 +31,7 @@ void compute() {
   cur = 1;
   for (int i = 0; str[i]; ++i) {
     dp[i + 1] = min(dp[i + 1], dp[i] + 1);
+    if ()
   }
 }
 void program() {
