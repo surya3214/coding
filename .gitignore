@@ -1,5 +1,7 @@
 .vscode
 **/a.out
+**/*.exe
+**/tempCodeRunnerFile.cpp
 input.txt
 output.txt
 myoutput.txt
