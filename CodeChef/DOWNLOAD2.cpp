@@ -7,12 +7,11 @@
 #define INTERVALS_MAX (10 * (BUFF(K_MAX) * BUFF(Q_MAX)))
 #define POINTS_MAX (int) (10 * (1e5 + (INTERVALS_MAX)))
 #define BLOCK_SIZE 360
-#define INF (int) (1e9 + 1)
-// #pragma GCC optimize "O4"
+#pragma GCC optimize "O4"
 using namespace std;
 typedef long long int ll;
 typedef unsigned long long int ull;
-int n, q;
+int n, q, INF;
 struct Q {
   int k, ans;
   int aliens[BUFF(K_MAX)];
@@ -142,13 +141,16 @@ void program() {
   for (int i = 1; i <= n; ++i) {
     scanf("%d %d", &s, &e);
     addToPoints(s, e, i, true);
+    INF = max(INF, BUFF(e));
   }
   scanf("%d", &q);
   for (int i = 1; i <= q; ++i) {
     queries[i].ans = n;
     scanf("%d", &queries[i].k);
-    for (int j = 1; j <= queries[i].k; ++j)
+    for (int j = 1; j <= queries[i].k; ++j) {
       scanf("%d", &queries[i].aliens[j]);
+      INF = max(INF, BUFF(queries[i].aliens[j]));
+    }
   }
   generateIntervals();
   sortIntervalsbyMosAlgorithm();
