@@ -6,7 +6,7 @@
 #define K_MAX 20
 #define INTERVALS_MAX (10 * (BUFF(K_MAX) * BUFF(Q_MAX)))
 #define POINTS_MAX (int) (10 * (1e5 + (INTERVALS_MAX)))
-#define BLOCK_SIZE 360
+#define BLOCK_SIZE 350
 #pragma GCC optimize "O4"
 using namespace std;
 typedef long long int ll;
@@ -17,26 +17,29 @@ struct Q {
   int aliens[BUFF(K_MAX)];
 } queries[BUFF(Q_MAX)];
 struct P {
-  int id, val;
+  int id, val, m_id;
   bool type; // true if an interval; false for points
   bool is_start; // valid only if |type| is true; true for s, false for e
 } points[BUFF(POINTS_MAX)];
 int p_ptr;
 struct I {
   int q_id, s, e;
+  int p_s, p_e;
 } intervals[BUFF(INTERVALS_MAX)];
-int i_ptr, block_size = BLOCK_SIZE;
-void addToPoints(int s, int e, int id, bool type) {
+int i_ptr, block_size;
+void addToPoints(int s, int e, int id, bool type, int m_id = 0) {
   ++p_ptr;
   points[p_ptr].type = type;
   points[p_ptr].id = id;
   points[p_ptr].val = s;
   points[p_ptr].is_start = true;
+  points[p_ptr].m_id = m_id;
   ++p_ptr;
   points[p_ptr].type = type;
   points[p_ptr].id = id;
   points[p_ptr].val = e;
   points[p_ptr].is_start = false;
+  points[p_ptr].m_id = m_id;
 }
 void addToIntervals(int q_id, int s, int e) {
   if (s >= e)
@@ -45,29 +48,31 @@ void addToIntervals(int q_id, int s, int e) {
   intervals[i_ptr].q_id = q_id;
   intervals[i_ptr].s = s;
   intervals[i_ptr].e = e;
-  addToPoints(s, e, q_id, false);
+  addToPoints(s, e, q_id, false, i_ptr);
 }
 void generateIntervals() {
   int l, r;
   for (int i = 1; i <= q; ++i) {
     sort(queries[i].aliens + 1, queries[i].aliens + 1 + queries[i].k);
-    l = 1;
-    for (int j = 1; j <= queries[i].k; ++j) {
-      r = queries[i].aliens[j] - 1;
-      addToIntervals(i, l, r);
+    addToIntervals(i, 1, queries[i].aliens[1] - 1);
+    for (int j = 1; j < queries[i].k; ++j) {
       l = queries[i].aliens[j] + 1;
+      r = queries[i].aliens[j + 1] - 1;
+      addToIntervals(i, l, r);
     }
-    addToIntervals(i, l, INF);
+    addToIntervals(i, queries[i].aliens[queries[i].k] + 1, INF);
   }
 }
 bool i_comparator(I a, I b) {
-  int a_blk = a.s / block_size;
-  int b_blk = b.s / block_size;
+  int a_blk = a.p_s / block_size;
+  int b_blk = b.p_s / block_size;
   if (a_blk != b_blk)
     return a_blk < b_blk;
-  return a.e < b.e;
+  return a.p_e < b.p_e;
 }
 void sortIntervalsbyMosAlgorithm() {
+  block_size = ceil(sqrt(p_ptr));
+  // block_size = BLOCK_SIZE;
   sort(intervals + 1, intervals + 1 + i_ptr, i_comparator);
 }
 bool p_comparator(P a, P b) { return a.val < b.val; }
@@ -113,26 +118,33 @@ void move(int l, int r) {
   }
   t_l = l, t_r = r;
 }
-int getMid(int l, int r) { return l + (r - l) / 2; }
-int findLeftMost(int x) {
-  int l, r, mid;
-  l = 1, r = p_ptr;
-  while (l < r) {
-    mid = getMid(l, r);
-    if (points[mid].val >= x)
-      r = mid - 1;
-    else l = mid + 1;
-  }
-  return r + 1;
-}
 void solveIntervals() {
   t_ans = t_l = t_r = 0;
   int l, r;
   for (int i = 1; i <= i_ptr; ++i) {
-    l = findLeftMost(intervals[i].s);
-    r = findLeftMost(intervals[i].e + 1) - 1;
+    l = intervals[i].p_s;
+    r = intervals[i].p_e;
     move(l, r);
-    queries[i].ans -= t_ans;
+    queries[intervals[i].q_id].ans -= t_ans;
+  }
+}
+void markRanges() {
+  int l, r, i_id, val;
+  l = val = 1;
+  while (l <= p_ptr) {
+    for (r = l; r + 1 <= p_ptr && points[l].val == points[r + 1].val; ++r);
+    for (int i = l; i <= r; ++i) {
+      i_id = points[i].m_id;
+      if (i_id) {
+        if (intervals[i_id].s == points[i].val)
+          intervals[i_id].p_s = l;
+        else if (intervals[i_id].e == points[i].val)
+          intervals[i_id].p_e = r;
+      }
+      points[i].val = val;
+    }
+    l = r + 1;
+    ++val;
   }
 }
 void program() {
@@ -153,15 +165,15 @@ void program() {
     }
   }
   generateIntervals();
-  sortIntervalsbyMosAlgorithm();
   sortAllPoints();
+  markRanges();
+  sortIntervalsbyMosAlgorithm();
   solveIntervals();
   for (int i = 1; i <= q; ++i)
     printf("%d\n", queries[i].ans);
 
 }
 int main() {
-  freopen("input.txt", "r", stdin);
   program();
   return 0;
 }
