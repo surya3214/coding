@@ -1,64 +1,67 @@
-// TLE
-#include <iostream>
-#include <cstdio>
-#define N_MAX 100010
+// AC Union Find, Graph Theory
+#include <bits/stdc++.h>
+#define BUFFER 5
+#define BUFF(x) x + BUFFER
+#define N_MAX (int) 1e5
+// #pragma GCC optimize "O4"
 using namespace std;
-int n, p, ans;
-int citizen_groups[N_MAX], cg_n;
-int groups[N_MAX];
-int groups_memoized[N_MAX];
-int ranks[N_MAX];
-bool finished[N_MAX];
-void reset() {
-  for (int i = 0; i < N_MAX; i++)
-    groups[i] = -1, ranks[i] = 1;
+typedef long long int ll;
+typedef unsigned long long int ull;
+int n, edges;
+struct {
+  vector<int> edges;
+  int g_id;
+} vertices[BUFF(N_MAX)];
+struct {
+  int root, cnt;
+  bool visited;
+} groups[BUFF(N_MAX)];
+int getRootGroup(int x) {
+  if (groups[x].root != x)
+    groups[x].root = getRootGroup(groups[x].root);
+  return groups[x].root;
 }
-int findGroup(int u) {
-  if (groups[u] == -1)
-    return u;
-  return findGroup(groups[u]);
-}
-void groupify(int u, int v) {
-  int u_p = findGroup(u);
-  int v_p = findGroup(v);
-  if (u_p != v_p) {
-    if (ranks[u_p] >= ranks[v_p]) {
-      groups[v_p] = groups[v] = u_p;
-      ranks[u_p] += ranks[v_p];
-    } else {
-      groups[u_p] = groups[u] = v_p;
-      ranks[v_p] += ranks[u_p];
+void groupify() {
+  int u_grp, v_grp;
+  for (int i = 0; i < n; ++i) {
+    for (auto j: vertices[i].edges) {
+      u_grp = getRootGroup(vertices[i].g_id);
+      v_grp = getRootGroup(vertices[j].g_id);
+      if (u_grp != v_grp) {
+        groups[u_grp].cnt += groups[v_grp].cnt;
+        groups[v_grp].root = u_grp;
+      }
     }
   }
 }
-void memoize() {
-  for (int i = 0; i < n; i++)
-    groups_memoized[i] = findGroup(i);
-}
-void compute() {
-  for (int i = 0; i < cg_n; i++)
-    for (int j = i + 1; j < cg_n; j++)
-      ans += citizen_groups[i] * citizen_groups[j];
+ll getCount() {
+  ll ret = 0;
+  int x, seen;
+  seen = 0;
+  for (int i = 0; i < n; ++i) {
+    x = getRootGroup(vertices[i].g_id);
+    if (!groups[x].visited) {
+      seen += groups[x].cnt;
+      ret += (1LL * groups[x].cnt * (n - seen));
+      groups[x].visited = true;
+    }
+  }
+  return ret;
 }
 void program() {
+  scanf("%d %d", &n, &edges);
   int u, v;
-  scanf("%d %d", &n, &p);
-  reset();
-  while (p--) {
+  for (int i = 0; i < n; ++i) {
+    vertices[i].g_id = groups[i].root = i;
+    groups[i].cnt = 1;
+  }
+  for (int i = 1; i <= edges; ++i) {
     scanf("%d %d", &u, &v);
-    groupify(u, v);
+    vertices[u].edges.push_back(v);
+    vertices[v].edges.push_back(u);
   }
-  int i_p;
-  memoize();
-  for (int i = 0; i < n; i++) {
-    i_p = groups_memoized[i];
-    if (!finished[i_p]) {
-      finished[i_p] = true;
-      citizen_groups[cg_n++] = ranks[i_p];
-    }
-  }
-  compute();
-  printf("%d\n", ans);
+  groupify();
+  printf("%lld\n", getCount());
 }
 int main() {
   program();
