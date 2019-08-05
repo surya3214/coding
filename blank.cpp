@@ -9,6 +9,7 @@ typedef unsigned long long int ull;
 void program() {
 }
 int main() {
+  // freopen("input.txt", "r", stdin);
   program();
   return 0;
 }
