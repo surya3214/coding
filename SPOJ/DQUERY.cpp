@@ -1,4 +1,4 @@
-//
+// AC Mo's Algorithm
 #include <bits/stdc++.h>
 #define N_MAX 30010
 #define Q_MAX 200010
