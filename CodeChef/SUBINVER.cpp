@@ -1,4 +1,4 @@
-// NA
+// AC Persistent Segment Tree
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
@@ -15,25 +15,29 @@ struct N {
   bool dirty;
   ll zeros_hash, ones_hash;
   N() {}
-  N(int l, int r, ll z_h, ll o_h, bool dirty) : l(l), r(r), zeros_hash(z_h), ones_hash(o_h), dirty(dirty) {}
+  N(int l, int r, ll z_h, ll o_h, bool dirty = false) : l(l), r(r), zeros_hash(z_h), ones_hash(o_h), dirty(dirty) {}
 } nodes[BUFF(NODES_MAX)];
 int nodes_ptr, best;
 int roots[BUFF(N_MAX)];
 int getMid(int l, int r) { return l + (r - l) / 2; }
-int buildBase(int l, int r) {
-  int cur = ++nodes_ptr;
+void buildBase(int cur, int l, int r) {
   ll z_h;
   if (l == r) {
     z_h = m_hash[l];
-    nodes[cur] = N(0, 0, z_h, 0, false);
+    nodes[cur] = N(0, 0, z_h, 0);
   } else {
     int mid = getMid(l, r);
-    int a = buildBase(l, mid);
-    int b = buildBase(mid + 1, r);
+    if (!nodes[cur].l)
+      nodes[cur].l = ++nodes_ptr;
+    if (!nodes[cur].r)
+      nodes[cur].r = ++nodes_ptr;
+    int a = nodes[cur].l;
+    int b = nodes[cur].r;
+    buildBase(a, l, mid);
+    buildBase(b, mid + 1, r);
     z_h = nodes[a].zeros_hash ^ nodes[b].zeros_hash;
-    nodes[cur] = N(a, b, z_h, 0, false);
+    nodes[cur] = N(a, b, z_h, 0);
   }
-  return cur;
 }
 void process() {
   mt19937 m_rand(time(0));
@@ -42,66 +46,68 @@ void process() {
     while (m_hash[i] == 0)
       m_hash[i] = m_rand();
   }
-  roots[0] = buildBase(1, n);
+  buildBase(roots[0], 1, n);
 }
-void sanitize(int ptr) {
-  if (!nodes[ptr].dirty)
+void pushDown(int cur) {
+  if (!nodes[cur].dirty)
     return;
-  int l, r, cur, child;
+  int new_child, child;
   ll z_h, o_h;
-  child = nodes[ptr].l;
+  child = nodes[cur].l;
   if (child) {
-    cur = ++nodes_ptr;
-    l = nodes[child].l, r = nodes[child].r, z_h = nodes[child].ones_hash, o_h = nodes[child].zeros_hash;
-    nodes[cur] = N(l, r, z_h, o_h, true);
+    new_child = ++nodes_ptr;
+    z_h = nodes[child].ones_hash, o_h = nodes[child].zeros_hash;
+    nodes[new_child] = N(nodes[child].l, nodes[child].r, z_h, o_h, !nodes[child].dirty);
+    nodes[cur].l = new_child;
   }
-  child = nodes[ptr].r;
+  child = nodes[cur].r;
   if (child) {
-    cur = ++nodes_ptr;
-    l = nodes[child].l, r = nodes[child].r, z_h = nodes[child].ones_hash, o_h = nodes[child].zeros_hash;
-    nodes[cur] = N(l, r, z_h, o_h, true);
+    new_child = ++nodes_ptr;
+    z_h = nodes[child].ones_hash, o_h = nodes[child].zeros_hash;
+    nodes[new_child] = N(nodes[child].l, nodes[child].r, z_h, o_h, !nodes[child].dirty);
+    nodes[cur].r = new_child;
   }
-  nodes[ptr].dirty = false;
+  nodes[cur].dirty = false;
 }
 int buildTree(int prev, int sl, int sr, int l, int r) {
+  if (sr < l || r < sl)
+    return prev;
+  int cur = ++nodes_ptr;
+  ll z_h, o_h;
   if (sl <= l && r <= sr) {
-    int cur = ++nodes_ptr;
-    ll z_h, o_h;
     z_h = nodes[prev].ones_hash;
     o_h = nodes[prev].zeros_hash;
     nodes[cur] = N(nodes[prev].l, nodes[prev].r, z_h, o_h, !nodes[prev].dirty);
-    return cur;
-  } else if (l <= sl && sr <= r) {
+  } else {
     int mid = getMid(l, r);
-    sanitize(nodes[prev].l);
-    sanitize(nodes[prev].r);
+    pushDown(prev);
     int a = buildTree(nodes[prev].l, sl, sr, l, mid);
     int b = buildTree(nodes[prev].r, sl, sr, mid + 1,r );
     ll z_h, o_h;
     z_h = nodes[a].zeros_hash ^ nodes[b].zeros_hash;
     o_h = nodes[a].ones_hash ^ nodes[b].ones_hash;
-    int cur = ++nodes_ptr;
-    nodes[cur] = N(a, b, z_h, o_h, false);
-    return cur;
+    nodes[cur] = N(a, b, z_h, o_h);
   }
-  return prev;
+  return cur;
 }
-bool isBigger(int a_ptr, int b_ptr, int l, int r) {
-  sanitize(a_ptr);
-  sanitize(b_ptr);
+bool isBigger(int x, int y, int l, int r) {
   if (l == r) {
-    return (bool)(nodes[a_ptr].ones_hash && nodes[b_ptr].zeros_hash);
+    return (bool) (nodes[x].ones_hash && nodes[y].zeros_hash);
   } else {
+    pushDown(x);
+    pushDown(y);
     int mid = getMid(l, r);
-    if (nodes[a_ptr].zeros_hash == nodes[b_ptr].zeros_hash)
-      return isBigger(nodes[a_ptr].r, nodes[b_ptr].r, mid + 1, r);
-    else return isBigger(nodes[a_ptr].l, nodes[b_ptr].l, l, mid);
+    int a = nodes[x].l;
+    int b = nodes[y].l;
+    if (nodes[a].zeros_hash == nodes[b].zeros_hash)
+      return isBigger(nodes[x].r, nodes[y].r, mid + 1, r);
+    else return isBigger(a, b, l, mid);
   }
 }
 void dfs(int ptr, int l, int r) {
-  sanitize(ptr);
+  pushDown(ptr);
   if (l == r) {
-    int x = (bool)(nodes[ptr].ones_hash);
+    int x = (bool) (nodes[ptr].ones_hash);
     printf("%d", x);
   } else {
     int mid = getMid(l, r);
@@ -122,7 +128,7 @@ void program() {
   dfs(roots[best], 1, n);
 }
 int main() {
-  freopen("input.txt", "r", stdin);
+  // freopen("input.txt", "r", stdin);
   program();
   return 0;
 }
