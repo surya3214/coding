@@ -10,7 +10,9 @@ typedef pair<int, int> pii;
 void program() {
 }
 int main() {
+#ifndef ONLINE_JUDGE
   // freopen("input.txt", "r", stdin);
+#endif
   program();
   return 0;
 }
