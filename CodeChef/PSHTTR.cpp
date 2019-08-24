@@ -1,4 +1,4 @@
-// NA
+// AC DFS, BIT
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
@@ -18,14 +18,17 @@ struct {
 } castles[BUFF(N_MAX)];
 int t_time;
 struct E {
-  int u, v, k;
+  int u, v, k, pos;
   bool type;
   E() {}
-  E(int u, int v, int k, bool type = false) : u(u), v(v), type(type) {}
+  E(int u, int v, int k, int pos = 0, bool type = false) : u(u), v(v), k(k), pos(pos), type(type) {}
   bool operator <(E b) {
-    return ((k < b.k) || (!type && b.type));
+    if (k == b.k && type != b.type)
+      return !type;
+    return k < b.k;
   }
 } events[BUFF(E_MAX)];
+int ans[BUFF(M_MAX)];
 int e_ptr;
 struct {
   int time;
@@ -66,6 +69,7 @@ void addToBIT(int val, int idx) {
 int queryBIT(int idx) {
   int ret = 0;
   while (idx) {
+    sanitizeBIT(idx);
     ret ^= BIT[idx].val;
     idx -= (idx & -idx);
   }
@@ -77,12 +81,12 @@ void addEdge(int e_idx) {
   if (castles[v].depth < castles[u].depth)
     swap(u, v);
   addToBIT(events[e_idx].k, castles[v].start);
-  addToBIT(events[e_idx].k, castles[v].end);
+  addToBIT(events[e_idx].k, castles[v].end + 1);
 }
 void program() {
   int tcase;
   scanf("%d", &tcase);
-  for (int t = 1, u, v, k, m, ans; t <= tcase; ++t) {
+  for (int t = 1, u, v, k, m; t <= tcase; ++t) {
     reset();
     scanf("%d", &n);
     for (int i = 1; i < n; ++i) {
@@ -94,18 +98,17 @@ void program() {
     scanf("%d", &m);
     for (int i = 1; i <= m; ++i) {
       scanf("%d %d %d", &u, &v, &k);
-      events[++e_ptr] = E(u, v, k, true);
+      events[++e_ptr] = E(u, v, k, i, true);
     }
     process();
     for (int i = 1; i <= e_ptr; ++i) {
       if (events[i].type) {
-        ans = queryBIT(castles[events[i].u].end);
-        ans ^= queryBIT(castles[events[i].u].start - 1);
-        ans ^= queryBIT(castles[events[i].v].end);
-        ans ^= queryBIT(castles[events[i].v].start - 1);
-        printf("%d\n", ans);
+        ans[events[i].pos] = queryBIT(castles[events[i].u].start);
+        ans[events[i].pos] ^= queryBIT(castles[events[i].v].start);
       } else addEdge(i);
     }
+    for (int i = 1; i <= m; ++i)
+      printf("%d\n", ans[i]);
   }
 }
 int main() {
