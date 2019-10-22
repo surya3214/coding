@@ -40,15 +40,12 @@ void dfs(int cur, int prev) {
   parent[cur][0] = prev;
   depth[cur] = 1 + depth[prev];
   roots[cur] = buildTree(roots[prev], M[w[cur]], 1, n);
-  // for (auto v: adj[cur])
-  int next;
   for (auto next: adj[cur]) {
     if (next != prev)
       dfs(next, cur);
   }
 }
 void process() {
-  // memset(parent, -1, sizeof(parent));
   dfs(1, 0);
   for (int i = 0; i < H_MAX; ++i) {
     for (int j = 1; j <= n; ++j) {
@@ -60,7 +57,7 @@ void process() {
 int LCA(int u, int v) {
   if (depth[u] < depth[v])
     swap(u, v);
-  int diff = depth[u] = depth[v];
+  int diff = depth[u] - depth[v];
   for (int i = 0; i < H_MAX; ++i)
     if ((diff >> i) & 1)
       u = parent[u][i];
@@ -86,15 +83,17 @@ int getKth(int a, int b, int c, int d, int k, int l, int r) {
 }
 void program() {
   int m;
+  vector<int> input;
   scanf("%d %d", &n, &m);
   for (int i = 1; i <= n; ++i) {
     scanf("%d", &w[i]);
-    M[w[i]];
+    input.push_back(w[i]);
   }
+  sort(input.begin(), input.end());
   int maxi = 1;
-  for (auto it = M.begin(); it != M.end(); ++it, ++maxi) {
-    M[it->first] = maxi;
-    RM[maxi] = it->first;
+  for (auto it = input.begin(); it != input.end(); ++it, ++maxi) {
+    M[*it] = maxi;
+    RM[maxi] = *it;
   }
   for (int i = 1, u, v; i < n; ++i) {
     scanf("%d %d", &u, &v);
