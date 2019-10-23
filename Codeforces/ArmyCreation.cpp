@@ -52,10 +52,10 @@ void process() {
   }
 }
 int querySum(int a_ptr, int b_ptr, int until, int l, int r) {
-  if (r <= until)
-    return nodes[a_ptr].cnt - nodes[b_ptr].cnt;
-  else if (until < l)
+  if (!nodes[a_ptr].cnt || until < l)
     return 0;
+  else if (r <= until)
+    return nodes[a_ptr].cnt - nodes[b_ptr].cnt;
   else {
     int mid = getMid(l, r);
     int a = querySum(nodes[a_ptr].l, nodes[b_ptr].l, until, l, mid);
