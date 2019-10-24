@@ -1,28 +1,24 @@
-// NA
+// AC Segment Tree, Input manipulation, Range query
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
 #define N_MAX (int) 1e5
 #define FREQ_MAX (int) (1e4 + 1e2)
 #define NODES_MAX (int) (8 * N_MAX * log2(N_MAX))
-// #pragma GCC optimize "O4"
+#pragma GCC optimize "O4"
 using namespace std;
 typedef long long int ll;
 typedef unsigned long long int ull;
 typedef pair<int, int> pii;
 int n, k;
 struct S {
-  int x, r, f, sorted_pos;
-  bool operator <(S other) { return x < other.x; }
+  int x, r, f, tree_pos;
+  bool operator <(S other) { return r > other.r; }
 } stations[BUFF(N_MAX)];
-struct R {
-  int idx, r;
-  bool operator <(R other) {
-    if (r != other.r)
-      return r < other.r;
-    return idx < other.idx;
-  }
-} ranges[BUFF(N_MAX)];
+struct P {
+  int idx, pos;
+  bool operator <(P other) { return pos < other.pos; }
+} positions[BUFF(N_MAX)];
 ll bad_pairs;
 struct N {
   int l, r, cnt;
@@ -50,7 +46,7 @@ int buildTree(int cur, int pos, int l, int r) {
 int queryCount(int cur, int t_l, int t_r, int l, int r) {
   if (!cur || r < t_l || t_r < l)
     return 0;
-  else if (l <= t_l && t_r <= r)
+  else if (t_l <= l && r <= t_r)
     return nodes[cur].cnt;
   else {
     int mid = getMid(l, r);
@@ -60,57 +56,55 @@ int queryCount(int cur, int t_l, int t_r, int l, int r) {
   }
 }
 int getLowerBound(int x) {
+  // returns the first position[1..n] with x <= val
   if (x <= 0)
     return 1;
   int l, r, mid;
   l = 1, r = n;
-  while (l < r) {
+  while (l <= r) {
     mid = getMid(l, r);
-    if (x <= ranges[mid].r)
+    if (x <= positions[mid].pos)
       r = mid - 1;
     else l = mid + 1;
   }
   return r + 1;
 }
 int getUpperBound(int x) {
-  if (x >= ranges[n].r)
+  // returns the last position[1..n] with val <= x
+  if (positions[n].pos <= x)
     return n;
   int l, r, mid;
   l = 1, r = n;
-  while (l < r) {
+  while (l <= r) {
     mid = getMid(l, r);
-    if (ranges[mid].r <= x)
+    if (positions[mid].pos <= x)
       l = mid + 1;
     else r = mid - 1;
   }
   return l - 1;
 }
 void solve() {
-  for (int i = n, l, r, lb, ub; i; --i) {
-    l = stations[i].f - k, r = stations[i].f + k;
-    lb = stations[i].sorted_pos;
-    ub = getUpperBound(stations[i].x + stations[i].r);
-    for (int j = l; j <= r; ++j)
-      bad_pairs += queryCount(roots[j], lb, ub, 1, n);
-    lb = stations[i].sorted_pos;
-    ub = getUpperBound(stations[i].x);
-    roots[stations[i].f] = buildTree(roots[stations[i].f], stations[i].sorted_pos, 1, n);
+  for (int i = 1, f_l, f_r, pos_l, pos_r; i <= n; ++i) {
+    f_l = stations[i].f - k;
+    f_r = stations[i].f + k;
+    pos_l = getLowerBound(stations[i].x - stations[i].r);
+    pos_r = getUpperBound(stations[i].x + stations[i].r);
+    for (int j = max(1, f_l); j <= f_r; ++j)
+      bad_pairs += queryCount(roots[j], pos_l, pos_r, 1, n);
+    roots[stations[i].f] = buildTree(roots[stations[i].f], stations[i].tree_pos, 1, n);
   }
 }
 void program() {
   scanf("%d %d", &n, &k);
   for (int i = 1; i <= n; ++i) {
     scanf("%d %d %d", &stations[i].x, &stations[i].r, &stations[i].f);
-    stations[i].f += 10;
+    positions[i].idx = i;
+    positions[i].pos = stations[i].x;
   }
-  sort(stations + 1, stations + 1 + n);
-  for (int i = 1; i <= n; ++i) {
-    ranges[i].idx = i;
-    ranges[i].r = max(1, stations[i].x - stations[i].r);
-  }
-  sort(ranges + 1, ranges + 1 + n);
+  sort(positions + 1, positions + 1 + n);
   for (int i = 1; i <= n; ++i)
-    stations[ranges[i].idx].sorted_pos = i;
+    stations[positions[i].idx].tree_pos = i;
+  sort(stations + 1, stations + 1 + n);
   solve();
   printf("%lld\n", bad_pairs);
 }
