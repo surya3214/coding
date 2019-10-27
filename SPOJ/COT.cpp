@@ -1,4 +1,4 @@
-// NA
+// AC Persistent Segment Tree
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
@@ -24,9 +24,10 @@ int getMid(int l, int r) { return l + (r - l) / 2; }
 int buildTree(int prev, int pos, int l, int r) {
   if (l <= pos && pos <= r) {
     int cur = ++nodes_ptr;
-    if (l == r)
-      nodes[cur] = N(0, 0, 1);
-    else {
+    if (l == r) {
+      nodes[cur] = nodes[prev];
+      ++nodes[cur].cnt;
+    } else {
       int mid = getMid(l, r);
       int a = buildTree(nodes[prev].l, pos, l, mid);
       int b = buildTree(nodes[prev].r, pos, mid + 1, r);
@@ -38,6 +39,10 @@ int buildTree(int prev, int pos, int l, int r) {
 }
 void dfs(int cur, int prev) {
   parent[cur][0] = prev;
+  for (int i = 1, x; i < H_MAX; ++i) {
+    x = parent[cur][i - 1];
+    parent[cur][i] = x ? parent[x][i - 1] : 0;
+  }
   depth[cur] = 1 + depth[prev];
   roots[cur] = buildTree(roots[prev], M[w[cur]], 1, n);
   for (auto next: adj[cur]) {
@@ -47,22 +52,19 @@ void dfs(int cur, int prev) {
 }
 void process() {
   dfs(1, 0);
-  for (int i = 0; i < H_MAX; ++i) {
-    for (int j = 1; j <= n; ++j) {
-      if (parent[j][i])
-        parent[j][i + 1] = parent[parent[j][i]][i];
-    }
-  }
 }
 int LCA(int u, int v) {
   if (depth[u] < depth[v])
     swap(u, v);
   int diff = depth[u] - depth[v];
-  for (int i = 0; i < H_MAX; ++i)
-    if ((diff >> i) & 1)
+  for (int i = H_MAX - 1; i >= 0 && diff; --i) {
+    if (diff >= (1 << i)) {
       u = parent[u][i];
+      diff -= (1 << i);
+    }
+  }
   if (u != v) {
-    for (int i = H_MAX - 1; i; --i) {
+    for (int i = H_MAX - 1; i >= 0; --i) {
       if (parent[u][i] != parent[v][i]) {
         u = parent[u][i];
         v = parent[v][i];
@@ -108,7 +110,7 @@ void program() {
   }
 }
 int main() {
-  freopen("input.txt", "r", stdin);
+  // freopen("input.txt", "r", stdin);
   program();
   return 0;
 }
