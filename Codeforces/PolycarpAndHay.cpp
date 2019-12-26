@@ -1,9 +1,9 @@
-// NA
+// AC Union-Find, BFS
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
 #define N_MAX 1000
-// #pragma GCC optimize "O4"
+#pragma GCC optimize "O0"
 using namespace std;
 typedef long long int ll;
 typedef unsigned long long int ull;
@@ -22,16 +22,14 @@ struct P {
   int x, y;
 };
 vector<P> s_points;
-int move_x[] = { -1, 1, 0, -1 };
-int move_y[] = {  0, 0, 1,  0 };
+int move_x[] = { -1, 0, 1,  0 };
+int move_y[] = {  0, 1, 0, -1 };
 struct {
   int val;
   int graph[BUFF(N_MAX)][BUFF(N_MAX)];
 } ans;
 bool isPossible(P p) {
-  if (p.x >= 1 && p.x <= n && p.y >= 1 && p.y <= m && graph[p.x][p.y].visited)
-    return true;
-  return false;
+  return p.x >= 1 && p.x <= n && p.y >= 1 && p.y <= m && graph[p.x][p.y].visited;
 }
 int getGroupRoot(int g_id) {
   if (groups[g_id].root != g_id)
@@ -44,50 +42,51 @@ void groupify(P a, P b) {
   b_grp = getGroupRoot(graph[b.x][b.y].g_id);
   if (a_grp != b_grp) {
     groups[a_grp].size += groups[b_grp].size;
-    graph[b.x][b.y].g_id = graph[a.x][a.y].g_id = a_grp;
+    groups[b_grp].root =
+    groups[graph[b.x][b.y].g_id].root =
+    groups[graph[a.x][a.y].g_id].root =
+      a_grp;
+    graph[b.x][b.y].g_id =
+    graph[a.x][a.y].g_id =
+      a_grp;
   }
 }
 void pickReqFrom(P p, int req) {
   queue<P> q;
-  int picked = 0, g_id, next_g_id;
   P cur, next;
-  for (q.push(p), g_id = getGroupRoot(graph[p.x][p.y].g_id); !q.empty() && picked != req; q.pop()) {
+  for (ans.graph[p.x][p.y] = ans.val, q.push(p), --req; !q.empty() && req; q.pop()) {
     cur = q.front();
-    ans.graph[cur.x][cur.y] = ans.val;
-    ++picked;
-    for (int i = 0; i < 4; ++i) {
+    for (int i = 0; i < 4 && req; ++i) {
       next.x = cur.x + move_x[i];
       next.y = cur.y + move_y[i];
-      if (isPossible(next)) {
-        next_g_id = getGroupRoot(graph[next.x][next.y].g_id);
-        if (next_g_id == g_id)
-          q.push(next);
+      if (isPossible(next) && !ans.graph[next.x][next.y]) {
+        ans.graph[next.x][next.y] = ans.val;
+        --req;
+        q.push(next);
       }
     }
   }
 }
 void process() {
   P next;
-  int required, root;
+  ll required;
+  int root;
   sort(s_points.begin(), s_points.end());
   for (auto cur: s_points) {
     graph[cur.x][cur.y].visited = true;
     for (int i = 0; i < 4; ++i) {
       next.x = cur.x + move_x[i];
       next.y = cur.y + move_y[i];
-      if (isPossible(next)) {
+      if (isPossible(next))
         groupify(cur, next);
-        root = getGroupRoot(graph[cur.x][cur.y].g_id);
-        printf("", groups[root].size);
-      }
     }
     if (!(k % graph[cur.x][cur.y].val)) {
-      required = k / graph[cur.x][cur.y].val;
+      required = k / (ll) graph[cur.x][cur.y].val;
       root = getGroupRoot(graph[cur.x][cur.y].g_id);
-      if (groups[root].size >= required) {
+      if ((ll) groups[root].size >= required) {
         ans.val = graph[cur.x][cur.y].val;
         pickReqFrom(cur, required);
-        return;
+        break;
       }
     }
   }
