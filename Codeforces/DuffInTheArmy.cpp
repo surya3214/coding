@@ -69,7 +69,7 @@ int findLCA(int u, int v) {
     }
   }
   if (u != v) {
-    for (int i = H_MAX, cur_rep = (1 << H_MAX); i >= 0; --i, cur_rep >>= 1) {
+    for (int i = H_MAX; i >= 0; --i) {
       if (vertices[u].parent[i] != vertices[v].parent[i]) {
         u = vertices[u].parent[i];
         v = vertices[v].parent[i];

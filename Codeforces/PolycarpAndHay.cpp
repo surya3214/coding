@@ -1,4 +1,4 @@
-// AC Union-Find, BFS
+// AC Union-Find, BFS, Medium-Hard
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
@@ -113,7 +113,7 @@ void program() {
   } else printf("NO\n");
 }
 int main() {
-  freopen("input.txt", "r", stdin);
+  // freopen("input.txt", "r", stdin);
   program();
   return 0;
 }
