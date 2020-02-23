@@ -1,4 +1,4 @@
-// NA
+// AC Knapsack, Bitset
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
@@ -12,59 +12,36 @@ typedef pair<int, int> pii;
 typedef pair<string, int> psi;
 int n;
 string s[BUFF(N_MAX)];
-pii dp[BUFF(N_MAX)][2];
-bool ans[BUFF(N_MAX)][2];
-int m_diff(pii x) { return abs(x.first - x.second); }
-void compute() {
-  int fh, sh;
-  pii x, y;
-  for (int i = 1; i <= n; ++i) {
-    fh = sh = 0;
-    for (int j = 0; j <= (n / 2) - 1; ++j) {
-      fh += s[i][j] == '1';
-      sh += s[i][j + n] == '1';
-    }
-    x.first = fh + dp[i - 1][0].first;
-    x.second = sh + dp[i - 1][0].second;
-    y.first = fh + dp[i - 1][1].first;
-    y.second = sh + dp[i - 1][1].second;
-    if (m_diff(x) <= m_diff(y)) {
-      dp[i][0] = x;
-      ans[i][0] = false;
-    } else {
-      dp[i][0] = y;
-      ans[i][0] = true;
-    }
-    swap(fh, sh);
-    x.first = fh + dp[i - 1][0].first;
-    x.second = sh + dp[i - 1][0].second;
-    y.first = fh + dp[i - 1][1].first;
-    y.second = sh + dp[i - 1][1].second;
-    if (m_diff(x) <= m_diff(y)) {
-      dp[i][1] = x;
-      ans[i][1] = false;
-    } else {
-      dp[i][1] = y;
-      ans[i][1] = true;
-    }
-  }
-  dp[n + 1][0] = dp[n + 1][1] = { 0, 0 };
-  if (m_diff(dp[n][0]) > m_diff(dp[n][1]))
-    ans[n + 1][0] = ans[n + 1][1] = true;
-}
+bitset<BUFF(N_MAX * N_MAX)> dp[BUFF(N_MAX)];
+int fh[BUFF(N_MAX)], sh[BUFF(N_MAX)];
 void program() {
   cin >> n;
   for (int i = 1; i <= n; ++i)
     cin >> s[i];
-  compute();
-  for (int i = 1, det; i <= n; ++i) {
-    if (m_diff(dp[i + 1][0]) < m_diff(dp[i + 1][1]))
-      det = ans[i + 1][0];
-    else det = ans[i + 1][1];
-    if (det)
-      reverse(begin(s[i]), end(s[i]));
-    cout << s[i] << endl;
+  dp[0][0] = 1;
+  int total = 0;
+  for (int i = 1; i <= n; ++i) {
+    fh[i] = sh[i] = 0;
+    for (int j = 0, k = n / 2; j < n / 2; ++j, ++k) {
+      fh[i] += s[i][j] == '1';
+      sh[i] += s[i][k] == '1';
+    }
+    total += fh[i] + sh[i];
+    dp[i] = dp[i - 1] << fh[i] | dp[i - 1] << sh[i];
   }
+  int best = total / 2;
+  while (!dp[n][best])
+    --best;
+  for (int i = n; i >= 1; --i) {
+    if (best - fh[i] >= 0 && dp[i - 1][best - fh[i]]) {
+      best -= fh[i];
+    } else {
+      reverse(begin(s[i]), end(s[i]));
+      best -= sh[i];
+    }
+  }
+  for (int i = 1; i <= n; ++i)
+    cout << s[i] << endl;
 }
 int main() {
   ios::sync_with_stdio(0);
