@@ -1,20 +1,21 @@
-// NA
+// AC F yeah! PST, Little Pruning
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
 #define N_MAX (int) (5e5)
-#define NODES_MAX (int) (8 * N_MAX * log2(N_MAX))
+#define NODES_MAX (int) (4 * N_MAX * log2(N_MAX))
 #define mp make_pair
 #define INF (int) 1e9
-// #pragma GCC optimize "O4"
+#pragma GCC optimize "O4"
 using namespace std;
 typedef long long int ll;
 typedef unsigned long long int ull;
-typedef map<int, int> mii;
+typedef unordered_map<int, int> umii;
 typedef pair<int, int> pii;
 typedef pair<string, int> psi;
 int n;
 int in[BUFF(N_MAX)];
+pii best;
 struct N {
   int l, r;
   pii val;
@@ -41,21 +42,20 @@ int buildTree(int prev, int val, int idx, int l, int r) {
   }
   return prev;
 }
-pii queryAns(int cur, int sl, int sr, int l, int r) {
-  if (!cur || sr < l || r < sl)
-    return { INF, 0 };
+void queryAns(int cur, int sl, int sr, int l, int r) {
+  if (!cur || sr < l || r < sl || best <= nodes[cur].val)
+    return;
   if (sl <= l && r <= sr)
-    return nodes[cur].val;
+    best = min(best, nodes[cur].val);
   else {
     int mid = getMid(l, r);
-    pii x = queryAns(nodes[cur].l, sl, sr, l, mid);
-    pii y = queryAns(nodes[cur].r, sl, r, mid + 1, r);
-    return min(x, y);
+    queryAns(nodes[cur].l, sl, sr, l, mid);
+    queryAns(nodes[cur].r, sl, r, mid + 1, r);
   }
 }
 void program() {
   cin >> n;
-  mii mp;
+  umii mp;
   for (int i = 1, last_seen; i <= n; ++i) {
     roots[i] = roots[i - 1];
     cin >> in[i];
@@ -67,18 +67,18 @@ void program() {
   }
   int m;
   cin >> m;
-  pii ret;
   for (int i = 1, l, r; i <= m; ++i) {
     cin >> l >> r;
-    ret = queryAns(roots[r], l, r, 1, n);
-    if (ret.first < l)
-      cout << in[ret.second] << endl;
+    best = { INF, 0 };
+    queryAns(roots[r], l, r, 1, n);
+    if (best.first < l)
+      cout << in[best.second] << endl;
     else cout << "0" << endl;
   }
 }
 int main() {
   ios::sync_with_stdio(0);
-	cin.tie(0);
+  cin.tie(0);
   cout.tie(0);
 #ifndef ONLINE_JUDGE
   freopen("input.txt", "r", stdin);
