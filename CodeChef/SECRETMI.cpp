@@ -38,15 +38,16 @@ void program() {
     }
   }
   int ans = 1;
-  for (int i = 1, j = 1, u, v, d; i < l; i = j, ++ans) {
+  for (int i = 1, j = 1, u, v, w, d; i < l; i = j, ++ans) {
     u = path[i];
     j = i + 1;
-    d = 1;
+    d = 0;
     while (j <= l) {
       v = path[j];
+      w = path[j - 1];
+      d += dist[w][v];
       if (d > min_dist[u][v])
         break;
-      ++d;
       ++j;
     }
     --j;
