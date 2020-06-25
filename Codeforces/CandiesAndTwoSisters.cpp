@@ -1,4 +1,4 @@
-// AC
+// AC #Simple, #Math
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER

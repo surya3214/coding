@@ -1,4 +1,4 @@
-// AC
+// AC #Simple, #Map
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
@@ -10,31 +10,24 @@ typedef long long int ll;
 typedef unsigned long long int ull;
 typedef pair<int, int> pii;
 typedef pair<string, int> psi;
-int n, ans, unique_cnt;
-int skills[BUFF(SKILLS_MAX)];
-void reset() {
-  ans = unique_cnt = 0;
-  for (int i = 1; i <= SKILLS_MAX; ++i)
-    skills[i] = 0;
-}
 void program() {
-  int tcase;
+  int tcase, n, ans;
   cin >> tcase;
   while (tcase--) {
-    reset();
+    ans = 0;
     cin >> n;
+    unordered_map<int, int> skills;
     for (int i = 1, skill; i <= n; ++i) {
       cin >> skill;
       if (!skills[skill])
-        ++unique_cnt;
-      ++skills[skill];
+        skills[skill] = 1;
+      else ++skills[skill];
     }
-    for (int i = 1, ret; i <= SKILLS_MAX; ++i) {
-      if (skills[i]) {
-        ret = max(min(unique_cnt - 1, skills[i]),
-                  min(unique_cnt, skills[i] - 1));
-        ans = max(ans, ret);
-      }
+    int unique_cnt = skills.size(), ret;
+    for (auto it = skills.begin(); it != skills.end(); ++it) {
+      ret = max(min(unique_cnt - 1, it->second),
+                min(unique_cnt, it->second - 1));
+      ans = max(ans, ret);
     }
     cout << ans << endl;
   }
