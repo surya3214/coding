@@ -1,4 +1,4 @@
-// AC #Simple, #Math
+// AC #Simple, #Permutation
 #include <bits/stdc++.h>
 #define BUFFER 5
 #define BUFF(x) x + BUFFER
@@ -9,29 +9,27 @@ typedef long long int ll;
 typedef unsigned long long int ull;
 typedef pair<int, int> pii;
 typedef pair<string, int> psi;
-int n, k;
 void program() {
-  int tcase, type, res;
+  int tcase, n;
   cin >> tcase;
   while (tcase--) {
-    cin >> n >> k;
-    type = -1;
-    res = n - (k - 1) * 2;
-    if (res > 0 && !(res & 1))
-      type = 2;
-    else {
-      res = n - (k - 1);
-      if (res > 0 && res & 1)
-        type = 1;
+    cin >> n;
+    if (n < 4) {
+      cout << "-1" << endl;
+      continue;
     }
-    if (type == -1)
-      cout << "NO" << endl;
-    else {
-      cout << "YES" << endl;
-      for (int i = 1; i < k; ++i)
-        cout << type << " ";
-      cout << res << endl;
+    int even = (n & 1) ? n - 1 : n;
+    while (even != 4) {
+      cout << even << " ";
+      even -= 2;
     }
+    cout << "2 4 ";
+    int odd = 1;
+    while (odd <= n) {
+      cout << odd << " ";
+      odd += 2;
+    }
+    cout << endl;
   }
 }
 int main() {
