@@ -31,11 +31,11 @@ class Solution {
         if (!digits[d].size())
           continue;
         rep = getCorrectPosition(digits[d][0]);
-        cost = abs(rep - pos);
+        cost = rep - pos;
         if (cost <= _k) {
           ret.push_back(d + '0');
           _k -= cost;
-          addToBIT(rep - 1);
+          addToBIT(digits[d][0]);
           digits[d].erase(digits[d].begin());
           break;
         }
