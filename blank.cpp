@@ -9,12 +9,15 @@ typedef long long int ll;
 typedef unsigned long long int ull;
 typedef pair<int, int> pii;
 typedef pair<string, int> psi;
-void program() {
-}
-int main() {
+void config() {
   ios::sync_with_stdio(0);
   cin.tie(0);
   cout.tie(0);
+}
+void program() {
+}
+int main() {
+  config();
 #ifndef ONLINE_JUDGE
   freopen("input.txt", "r", stdin);
 #endif
